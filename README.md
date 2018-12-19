@@ -1,5 +1,6 @@
 # Data-coverage
 資料流程
+
 For Terrestrial vertebrates
 
 ***
@@ -11,7 +12,7 @@ For Terrestrial vertebrates
 - 蒐集資訊：
     Species, Year, Month, Longitude, Latitude, Event ID, (Individual count)
 
-## 匯入資料集
+## 匯入所有資料集  `D:/Chun/Analysis/RRR/Dataset/All.data_ori.rds`
 1. 國家公園(~2016)
 2. eBird (2000/01~2017/12) (ebd)
 3. 中華民國野鳥學會資料庫CWBF (2017) (CWBF) 
@@ -45,43 +46,42 @@ For Terrestrial vertebrates
 |RK        |       22553|      	376|
 |**Sum**   | **3150526**|  **2926**|
 
+
+
 # 對照物種資訊
 ## 比對 TaiBNET 名錄
-### 可對上物種資訊之紀錄
-資料量：3,142,416
+### 可對上物種資訊之紀錄  `D:/Chun/Analysis/RRR/Dataset/data_coverage_201801219.rds`
+資料量：3,142,416  
 物種數：834
 
-|    Project| nRecord| nSpecies|   nNA|
-|-----------|-------:|--------:|-----:|
-|        BBS|  231115|      318|     7|
-| Forest.4th|    6483|      159|  6483|
-|      CY.ML|    8954|       33|  8954|
-|       Frog|   37813|       33|     0|
-|    Augu101|   14719|      138|     0|
-|    Augu102|    8545|      131|     7|
-|        Inv|     835|        1|     0|
-|        HLC|    1512|      121|   302|
-|        ebd|  977670|      572| 48495|
-|       CWBF| 1772241|      566|     0|
-|        TBN|   60026|      459| 60026|
-|         RK|   22503|      375| 22503|
+|    Project| nRecord| nSpecies|
+|-----------|-------:|--------:|
+|        BBS|  231115|      318|
+| Forest.4th|    6483|      159|
+|      CY.ML|    8954|       33|
+|       Frog|   37813|       33|
+|    Augu101|   14719|      138|
+|    Augu102|    8545|      131|
+|        Inv|     835|        1|
+|        HLC|    1512|      121|
+|        ebd|  977670|      572|
+|       CWBF| 1772241|      566|
+|        TBN|   60026|      459|
+|         RK|   22503|      375|
 
 ### 無物種資訊之紀錄
-資料量：8,110
-物種數：8 , 
+資料量：8,110  
+物種數：8  
 ie.: 紅領綠鸚鵡, 王氏樹蛙, 碧眼樹蛙, 斑脇秧雞, 短翅樹鶯（日本樹鶯）, 台灣小鶯(小鶯), 藍喉蜂虎, 泰國八哥
 
-| Project| nRecord| nSpecies| nNA|
-|--------|-------:|--------:|---:|
-|     BBS|       3|        1|   0|
-|    Frog|      19|        1|   0|
-|     ebd|      24|        1|   1|
-|    CWBF|    8013|        1|   0|
-|     TBN|       1|        1|   1|
-|      RK|      50|        1|  50|
-
-
-
+| Project| nRecord| nSpecies|
+|--------|-------:|--------:|
+|     BBS|       3|        1|
+|    Frog|      19|        2|
+|     ebd|      24|        2|
+|    CWBF|    8013|        5|
+|     TBN|       1|        1|
+|      RK|      50|        1|
 
 ***
 # 來源資料集蒐集
