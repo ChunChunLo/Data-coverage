@@ -1,9 +1,10 @@
 #-----------------------
 #title: "Data coverage"
 #author: "Chun"
-#date: "11 May. 2018"
+#date: "19 Dec. 2018"
 #-----------------------
 
+#---- load packages
 library(data.table)
 library(magrittr)
 library(readxl)
@@ -13,59 +14,64 @@ library(plyr)
 library(dplyr)
 library(raster)
 library(rgeos)
-library(RColorBrewer) #é…è‰²ç”¨brewer.pal( 9 , "Reds" )
+library(RColorBrewer) #°t¦â¥Îbrewer.pal( 9 , "Reds" )
 library(ggpubr)
 library(scales)
 
 
 
-####å¸¸ç”¨å­—é«”####
+####±`¥Î¦rÅé####
 windowsFonts(
-       # ä¸­æ–‡å­—ä½“
-       lishu = windowsFont(family = "LiSu"),            # éš¸æ›¸
-       yahei = windowsFont(family = "Microsoft YaHei"), # å¾®è»Ÿé›…é»‘
-       jhengHei = windowsFont(family = "Microsoft JhengHei"), # å¾®è»Ÿæ­£é»‘
-       xinwei = windowsFont(family = "STXingwei"),      # è¯æ–‡æ–°é­
-       kaiti = windowsFont(family = "KaiTi"),           # æ¥·ä½“
-       heiti = windowsFont(family = "SimHei"),          # é»‘ä½“
-       # è‹±æ–‡å­—ä½“
-       aTypeial = windowsFont(family = "ATypeial"),             # ATypeialå­—ä½“
-       calibTypei = windowsFont(family = "CalibTypei"),         # CalibTypeiå­—ä½“
-       newman = windowsFont(family = "Times New Roman"),  #Times New Romanå­—ä½“   
-       hand = windowsFont(family = "Lucida Calligraphy"), # Lucidaæ‰‹å¯«ä½“
-       Helvetica = windowsFont(family = "Helvetica")      # å°åˆ·ä½“
+       # ¤¤¤å¦rÊ^
+       lishu = windowsFont(family = "LiSu"),            # Áõ®Ñ
+       yahei = windowsFont(family = "Microsoft YaHei"), # ·L³n¶®¶Â
+       jhengHei = windowsFont(family = "Microsoft JhengHei"), # ·L³n¥¿¶Â
+       xinwei = windowsFont(family = "STXingwei"),      # µØ¤å·sÃQ
+       kaiti = windowsFont(family = "KaiTi"),           # ·¢Ê^
+       heiti = windowsFont(family = "SimHei"),          # ¶ÂÊ^
+       # ­^¤å¦rÊ^
+       aTypeial = windowsFont(family = "ATypeial"),             # ATypeial¦rÊ^
+       calibTypei = windowsFont(family = "CalibTypei"),         # CalibTypei¦rÊ^
+       newman = windowsFont(family = "Times New Roman"),  #Times New Roman¦rÊ^   
+       hand = windowsFont(family = "Lucida Calligraphy"), # Lucida¤â¼gÊ^
+       Helvetica = windowsFont(family = "Helvetica")      # ¦L¨êÊ^
        )
 
-####ç’°å¢ƒè¨­è¨‚####
+#---- Set environment
 #--from
 D2018 <- "D:/Chun/Analysis/RRR/Dataset"
 #--Grid
-Grid.dir <- "D:/Chun/Analysis/GIS/Taiwan/grid_system_tw_terrestrial_v20180511/g_3826_0_2200000_s"
-Grid.fname <- "g1km_3826_0_2200000_s"
+Grid.dir <- "D:/Chun/Analysis/GIS/Taiwan/grid_system_tw_terrestrial_v20180511"
+Grid.fname <- "g1km_epsg4326"
 #--Dem
 Dem.dir <- "D:/Chun/Analysis/GIS/Taiwan/DEM_20m"
 Dem.fname <- "dem_20m.tif"
 #--wd
 wd <- file.path(paste0(D2018,"/analysis/Result"))
 setwd(wd) 
-##############################################è³‡æ–™æº–å‚™
-####æª”æ¡ˆæº–å‚™####
-#--è³‡æ–™åŒ¯å…¥
+##############################################¸ê®Æ·Ç³Æ
+####ÀÉ®×·Ç³Æ####
+#--¸ê®Æ¶×¤J
 All.data <-
-  get(load(file.path(D2018,"data_coverage_20180417.RData"))) #raw data
+  readRDS(file.path(D2018,"data_coverage_20181219.rds")) #raw data
+
+##--Alien species
+Alien <- All.data %>%
+  .[is_alien != "0"] #Alien species
 
 ##--native species
-#All.data %<>%
-#  .[is_alien == "0"] #native species
-#save(All.data, 
-#     file= file.path(D2018,"data_coverage_native.RData"))
+All.data %>%
+  .[is_alien == "0"] #native species
 
-All.data <-
-  get(load(file.path(D2018,"data_coverage_native.RData")))  #native species data
+save(All.data,
+     file= file.path(D2018,"data_coverage_native.rds"))
+
+All.data_file <-
+  get((file.path(D2018,"data_coverage_native.RData")))  #native species data
 
 
 
-####åˆ†å‰²é¡ç¾¤ each class####
+####¤À³ÎÃş¸s each class####
 All.data_Aves <- All.data %>%
   .[class == "Aves"] 
 All.data_Mammalia <- All.data %>%
@@ -97,7 +103,7 @@ fwrite(All.data_Amphibia,
 
 
 
-####åˆªé™¤è·³æµ·é»ä½####
+####§R°£¸õ®üÂI¦ì####
 
 #--turn DF to SpatialPointDF
   #epsg:4326>>WGS84
@@ -114,17 +120,17 @@ Grid <- readOGR(Grid.dir,
 Grid %<>% spTransform(CRS("+init=epsg:4326"))
 Grid@data %<>% setnames(.,"Id","GID") # change column name
 
-#--åˆªé™¤è·³æµ· select data in Taiwan only 
+#--§R°£¸õ®ü select data in Taiwan only 
 All.data.s <- 
   All.data[subset(Grid), ]
 
-#--æŠ“å–ç¶“ç·¯è³‡æ–™
+#--§ì¨ú¸g½n¸ê®Æ
 All.data.s@data <- 
   cbind(All.data.s@data, All.data.s@coords) %>%
   setDT 
 
-####å¥—å…¥ç¶²æ ¼ç·¨è™Ÿ spatial join ç¶²æ ¼IDåˆ°All.data####
-#--import data åŒ¯å…¥ç¶²æ ¼ [Grid]
+####®M¤Jºô®æ½s¸¹ spatial join ºô®æID¨ìAll.data####
+#--import data ¶×¤Jºô®æ [Grid]
 Grid <- readOGR(Grid.dir, 
                 Grid.fname,
                 encoding="UTF-8", use_iconv=TRUE)
@@ -135,14 +141,14 @@ Grid@data %<>% setnames(.,"ID","GID")  # change column name
 All.data.s$GID <- over(All.data.s, Grid[, "GID"])$GID
 All.data.s_geo <- All.data.s
 
-#--å°‡All.data.sSPDFè½‰å›DF
+#--±NAll.data.sSPDFÂà¦^DF
 All.data.s <- All.data.s@data %>%
   setDT
 
-##############################################æ™‚ç©ºåˆ†å¸ƒ
+##############################################®ÉªÅ¤À¥¬
 ######################################################
-####4class ç´€éŒ„ç‰©ç¨®æ•¸/ç­†æ•¸çš„æ™‚é–“åˆ†å¸ƒ####
-#--è£½è¡¨ï¼Œ4class ç‰©ç¨®ç´€éŒ„ç­†æ•¸ã€ç‰©ç¨®æ•¸é‡éš¨æ™‚é–“åˆ†å¸ƒ
+####4class ¬ö¿ıª«ºØ¼Æ/µ§¼Æªº®É¶¡¤À¥¬####
+#--»sªí¡A4class ª«ºØ¬ö¿ıµ§¼Æ¡Bª«ºØ¼Æ¶qÀH®É¶¡¤À¥¬
 data_yr <- All.data.s %>%  
   .[, list(accepted_name_code, class, scientific_name, Year)] %>%
   .[, .(nRecord = .N, nSpecies = uniqueN(accepted_name_code)), by = list(Year, class)] %>%
@@ -156,7 +162,7 @@ data_yr <- All.data.s %>%
 fwrite(data_yr,file = "data_year.csv")
 
 # data_yr<- fread("data_year.csv")
-#--è£½åœ–ï¼Œ4class ç‰©ç¨®ç´€éŒ„ç­†æ•¸ã€ç‰©ç¨®æ•¸é‡éš¨æ™‚é–“åˆ†å¸ƒ
+#--»s¹Ï¡A4class ª«ºØ¬ö¿ıµ§¼Æ¡Bª«ºØ¼Æ¶qÀH®É¶¡¤À¥¬
 
 class.list <- cbind(class=c("Total", "Amphibia", "Reptilia", "Aves", "Mammalia"),
                     c(872, 35, 90, 659, 88),
@@ -168,7 +174,7 @@ class.list$invasive %<>% as.numeric
 
 i=1
 
-##--è£½åœ–function
+##--»s¹Ïfunction
 class.plot <- 
   function(i, data_yr){
     C <- class.list[i, class]
@@ -195,7 +201,7 @@ class.plot <-
       geom_point(data = data_yr_class, 
                  aes(x=Year, y=nSpecies), size=1.5) +
       geom_hline(aes(yintercept = N), 
-                 colour= "#CC0000" , linetype="dashed", size = 1) + #æ·»åŠ æ°´å¹³???
+                 colour= "#CC0000" , linetype="dashed", size = 1) + #²K¥[¤ô¥­???
       theme_bw() +
       scale_x_continuous(limits = c(1970,2020)) +
       scale_y_continuous(name = "Richness", 
@@ -203,8 +209,8 @@ class.plot <-
                          labels = nsci) +
       ggtitle(paste(C)) +
       theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 12),
-            axis.title = element_text(face = "bold", #å­—é«”("plain", "italic", "bold", "bold.italic")
-                                      #colour = "red", #å­—é«”é¡è‰²
+            axis.title = element_text(face = "bold", #¦rÅé("plain", "italic", "bold", "bold.italic")
+                                      #colour = "red", #¦rÅéÃC¦â
                                       size = 14),
             axis.text.y.right = element_text(size=12, face="plain", color = "#7491A6"),
             axis.title.y.right = element_text(size=14, face="bold", color = "#7491A6"),
@@ -229,9 +235,9 @@ ggsave(paste("Total","year.png",sep="_"),
        width = 11, height = 4, dpi = 500)
 
 
-####4class ç‰©ç¨®ç´€éŒ„ç­†æ•¸/ç‰©ç¨®æ•¸é‡æ–¼ç©ºé–“ä¸Šçš„åˆ†å¸ƒ####
+####4class ª«ºØ¬ö¿ıµ§¼Æ/ª«ºØ¼Æ¶q©óªÅ¶¡¤Wªº¤À¥¬####
 #--Prepare data
-##-- è³‡æ–™åˆè¨ˆï¼Œç´€éŒ„ç­†æ•¸ã€ç‰©ç¨®æ•¸ï¼Œç¶²æ ¼ID ~ åˆ†é¡ç¾¤
+##-- ¸ê®Æ¦X­p¡A¬ö¿ıµ§¼Æ¡Bª«ºØ¼Æ¡Aºô®æID ~ ¤ÀÃş¸s
 data_GID <- All.data.s %>%  
   .[, list(accepted_name_code, class, scientific_name, GID)] %>%
   .[, .(nRecord = .N, nSpecies = uniqueN(accepted_name_code)), by = list(GID, class)] %>%
@@ -245,10 +251,10 @@ data_GID <- All.data.s %>%
 fwrite(data_GID,file = "data_GID.csv") 
 # data_GID <- fread(file = "data_GID.csv") 
 
-#--å°‡æ¯å€‹ç¶²æ ¼å„åˆ†é¡ç¾¤çš„ç´€éŒ„ç¸½æ•¸è³‡æ–™åŠ å…¥ç¶²æ ¼åœ–å±¤
+#--±N¨C­Óºô®æ¦U¤ÀÃş¸sªº¬ö¿ıÁ`¼Æ¸ê®Æ¥[¤Jºô®æ¹Ï¼h
 Grid@data %<>% left_join(., data_GID)
 
-#--å°‡æ–°çš„ç¶²æ ¼åœ–å±¤å­˜æˆshapefile
+#--±N·sªººô®æ¹Ï¼h¦s¦¨shapefile
 writeOGR(Grid, 
          wd,
          "nPoint_class",
@@ -256,7 +262,7 @@ writeOGR(Grid,
          driver = "ESRI Shapefile")
 
 
-#--è£½åœ–ï¼Œ4class ç´€éŒ„ç‰©ç¨®æ•¸/ç­†æ•¸çš„ç©ºé–“åˆ†å¸ƒ
+#--»s¹Ï¡A4class ¬ö¿ıª«ºØ¼Æ/µ§¼ÆªºªÅ¶¡¤À¥¬
 Group <- cbind(class=c("nRecord_Total", "nRecord_Amphibia", "nRecord_Reptilia", "nRecord_Aves", "nRecord_Mammalia",
                        "nSpecies_Total", "nSpecies_Amphibia", "nSpecies_Reptilia", "nSpecies_Aves", "nSpecies_Mammalia"),
                Gname= c("Number of total records", "Number of amphibian records", "Number of reptilia records", "Number of aves records", "Number of mammalia records", 
@@ -301,8 +307,8 @@ for(i in 1: dim(Group)[1])
          bg = "transparent")
 }
 ######################################################
-####XXè£½åœ–Doughnut chart####
-#----- è£½åœ–function: Doughnut chart
+####XX»s¹ÏDoughnut chart####
+#----- »s¹Ïfunction: Doughnut chart
 #' x      numeric vector for each slice
 #' group  vector identifying the group for each slice
 #' labels vector of labels for individual slices
@@ -366,12 +372,12 @@ for(i in 1: dim(Group)[1])
 #    }
 #  } 
 
-#######ä¾å„ä¿è­·å€åŠƒåˆ† è£½è¡¨&è£½åœ–ï¼Œ4class æœ‰ç„¡ç´€éŒ„ç¶²æ ¼æ•¸
+#######¨Ì¦U«OÅ@°Ï¹º¤À »sªí&»s¹Ï¡A4class ¦³µL¬ö¿ıºô®æ¼Æ
 ######################################################
   
-########################################ä¾å„ä¿è­·å€åŠƒåˆ†
-####ä¾å„ä¿è­·å€è¨ˆç®—ç¶²æ ¼æ¯” export barplot####
-#--import data æº–å‚™...
+########################################¨Ì¦U«OÅ@°Ï¹º¤À
+####¨Ì¦U«OÅ@°Ï­pºâºô®æ¤ñ export barplot####
+#--import data ·Ç³Æ...
 nGrid <- Grid@data  %>%
     setDT %>%
          .[,c("GID",
@@ -403,7 +409,7 @@ remove(x)
 #--class
 class.list <- c("Total", "Amphibia", "Reptilia", "Aves", "Mammalia")
 type <- cbind(c("County", "natpark", "natreserve", "natprotect", "wlrefuge", "wlhabitat", "wetland", "wetllevel",  "iba"),
-              c("ç¸£å¸‚", "åœ‹å®¶å…¬åœ’", "è‡ªç„¶ä¿ç•™å€", "è‡ªç„¶ä¿è­·å€", "é‡ç”Ÿå‹•ç‰©ä¿è­·å€", "é‡ç”Ÿå‹•ç‰©é‡è¦æ£²æ¯ç’°å¢ƒ", "é‡è¦æ¿•åœ°", "æ¿•åœ°ç­‰ç´š", "é‡è¦é‡é³¥æ£²æ¯åœ°"))
+              c("¿¤¥«", "°ê®a¤½¶é", "¦ÛµM«O¯d°Ï", "¦ÛµM«OÅ@°Ï", "³¥¥Í°Êª««OÅ@°Ï", "³¥¥Í°Êª«­«­n´Ï®§Àô¹Ò", "­«­nÀã¦a", "Àã¦aµ¥¯Å", "­«­n³¥³¾´Ï®§¦a"))
 
 i=1
 f=1
@@ -424,7 +430,7 @@ for(i in 1:dim(type)[1])
   {
     C<- class.list[f] #class
       
-    TClass <- T %$%ã€€
+    TClass <- T %$%¡@
                 .[, c(Typei, C ), with = FALSE]
       
     nGrid_sum <- TClass %>% 
@@ -438,8 +444,8 @@ for(i in 1:dim(type)[1])
                  .[order(Typei, decreasing = TRUE)] %>%
                  #.[, label_y:= cumsum(per), by=list(Typei)] %>%
                  .[, sum:= NULL] %>%
-                 .[Survey=="survey", label_y:= as.numeric(19)] %>% #æ¨™ç±¤ä½ç½®
-                 .[Survey!="survey", label_y:= as.numeric(99)] #æ¨™ç±¤ä½ç½®
+                 .[Survey=="survey", label_y:= as.numeric(19)] %>% #¼ĞÅÒ¦ì¸m
+                 .[Survey!="survey", label_y:= as.numeric(99)] #¼ĞÅÒ¦ì¸m
                    
     nGrid_sum <-nGrid_sum[Survey=="survey"] %$%
                 .[order(per, decreasing = TRUE)] %$%
@@ -450,8 +456,8 @@ for(i in 1:dim(type)[1])
                 .[order(Survey, decreasing = TRUE)] %>%
                 .[order(TypeiOrder, decreasing = TRUE)]
   
-    H <- nGrid_sum$Typei %>% unique %>% length #ä¼°ç®—åœ–è¡¨é«˜
-    W <- nGrid_sum$Typei %>% as.vector %>% nchar() %>% max #ä¼°ç®—åœ–è¡¨é•·
+    H <- nGrid_sum$Typei %>% unique %>% length #¦ôºâ¹Ïªí°ª
+    W <- nGrid_sum$Typei %>% as.vector %>% nchar() %>% max #¦ôºâ¹Ïªíªø
          
     #plot summary barplot
     
@@ -462,7 +468,7 @@ for(i in 1:dim(type)[1])
         labs(title = NULL, x = "", y = "Number of Grids (%)", fill="Survey")+
         coord_flip()+
         theme_classic()+
-        #scale_fill_grey()+ #ç°éš
+        #scale_fill_grey()+ #¦Ç¶¥
         theme(
               #plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"),
               legend.key.size = unit(0.4, "cm"),
@@ -487,7 +493,7 @@ for(i in 1:dim(type)[1])
     remove(T)
 }
 
-####ä¾å„å€åŸŸç•«å‡ºèª¿æŸ¥ç¶²æ ¼(æœ‰/ç„¡) export map & ä¾å„å€åŸŸè¼¸å‡ºèª¿æŸ¥ç¶²æ ¼(æœ‰/ç„¡) export table####
+####¨Ì¦U°Ï°ìµe¥X½Õ¬dºô®æ(¦³/µL) export map & ¨Ì¦U°Ï°ì¿é¥X½Õ¬dºô®æ(¦³/µL) export table####
 # Grid <- readOGR(Grid.dir, 
 #                 Grid.fname,
 #                encoding="UTF-8", use_iconv=TRUE)
@@ -522,7 +528,7 @@ f=1
 #--list class
 class.list <- c("Total", "Amphibia", "Reptilia", "Aves", "Mammalia")
 type <- cbind(c("County", "natpark", "natreserve", "natprotect", "wlrefuge", "wlhabitat", "wetland", "wetllevel",  "iba"),
-              c("ç¸£å¸‚", "åœ‹å®¶å…¬åœ’", "è‡ªç„¶ä¿ç•™å€", "è‡ªç„¶ä¿è­·å€", "é‡ç”Ÿå‹•ç‰©ä¿è­·å€", "é‡ç”Ÿå‹•ç‰©é‡è¦æ£²æ¯ç’°å¢ƒ", "é‡è¦æ¿•åœ°", "æ¿•åœ°ç­‰ç´š", "é‡è¦é‡é³¥æ£²æ¯åœ°"))
+              c("¿¤¥«", "°ê®a¤½¶é", "¦ÛµM«O¯d°Ï", "¦ÛµM«OÅ@°Ï", "³¥¥Í°Êª««OÅ@°Ï", "³¥¥Í°Êª«­«­n´Ï®§Àô¹Ò", "­«­nÀã¦a", "Àã¦aµ¥¯Å", "­«­n³¥³¾´Ï®§¦a"))
 
 sd.cols = c("Total", "Amphibia", "Reptilia", "Aves", "Mammalia")
 
@@ -549,20 +555,20 @@ for(i in 1:dim(type)[1])
     setnames(.,Typei ,"Class") %>%
     .[!is.na(Class)]
 
-  #--è¨ˆç®—å„é¡åˆ¥ç¶²æ ¼æ•¸
+  #--­pºâ¦UÃş§Oºô®æ¼Æ
   Typei_count <-  nGrid_N %$% 
     .[, Typei, with = FALSE] %>%
     setnames(.,"Type") %>% 
     na.omit %>%
     .[, .(Count = .N), by = Type]  
-  #--åŠ ç¸½å„é¡åˆ¥èª¿æŸ¥ç¶²æ ¼æ•¸
+  #--¥[Á`¦UÃş§O½Õ¬dºô®æ¼Æ
   Typei_sum <-  nGrid_N %$% 
     .[, c(Typei, "Total", "Amphibia", "Reptilia", "Aves", "Mammalia"), with = FALSE] %>%
     setnames(.,Typei, "Type") %>% 
     na.omit %>%
     .[, lapply(.SD, function(x)sum(x)), by = Type, .SDcols = sd.cols] %>% 
     setnames(c("Type", "Total_nGrid_sum", "Amphibia_nGrid_sum", "Reptilia_nGrid_sum", "Aves_nGrid_sum", "Mammalia_nGrid_sum"))
-  #--è¨ˆç®—å„é¡åˆ¥èª¿æŸ¥ç¶²æ ¼æ¯”
+  #--­pºâ¦UÃş§O½Õ¬dºô®æ¤ñ
   Typei_per <- nGrid_N %$% 
     .[,c(Typei, "Total", "Amphibia", "Reptilia", "Aves", "Mammalia"), with = FALSE] %>%
     setnames(.,Typei, "Type") %>%
@@ -639,18 +645,18 @@ fwrite(Typei_sum_table,"extract range_sum_table.csv")
 ######################################################
 
 
-##########################################æ²¿æµ·æ‹”çš„åˆ†å¸ƒ
-####4class ç´€éŒ„ç‰©ç¨®æ•¸/ç­†æ•¸çš„æµ·æ‹”åˆ†å¸ƒ####
+##########################################ªu®ü©Şªº¤À¥¬
+####4class ¬ö¿ıª«ºØ¼Æ/µ§¼Æªº®ü©Ş¤À¥¬####
 #--import data
-#--åŒ¯å…¥æµ·æ‹”è³‡è¨Š20å…¬å°ºDEM [dem]
+#--¶×¤J®ü©Ş¸ê°T20¤½¤ØDEM [dem]
 dem <- raster(file.path(Dem.dir, Dem.fname))
-#--å°‡Finalçš„ä½œæ¨™ç³»çµ±è½‰æ›æˆèˆ‡demç›¸åŒ
+#--±NFinalªº§@¼Ğ¨t²ÎÂà´«¦¨»Pdem¬Û¦P
 dem %<>% spTransform(CRS(proj4string(Grid)))
 crs(dem) %<>% spTransform(CRS(proj4string(Grid)))
 
-#--å°‡Finalçš„ä½œæ¨™ç³»çµ±è½‰æ›æˆèˆ‡demç›¸åŒ
+#--±NFinalªº§@¼Ğ¨t²ÎÂà´«¦¨»Pdem¬Û¦P
 All.data.s_geo %<>% spTransform(CRS(proj4string(dem)))
-#--æˆªå–æ¯å€‹ç´€éŒ„é»ä½çš„æµ·æ‹”è³‡è¨Š [Final.elev]
+#--ºI¨ú¨C­Ó¬ö¿ıÂI¦ìªº®ü©Ş¸ê°T [Final.elev]
 data_elev <- data.table(All.data.s_geo@data, 
              elevation = raster::extract(dem, All.data.s_geo@coords)) %>%
   .[, elev.c := cut(elevation, seq(-100, 4000, 100),
@@ -669,12 +675,12 @@ fwrite(data_elev,file = "data_elev.csv")
 
 # data_elev<- fread("data_elev.csv")
 
-##--è£½åœ–ï¼Œ4class ç‰©ç¨®ç´€éŒ„ç­†æ•¸/ç‰©ç¨®æ•¸é‡æ²¿æµ·æ‹”çš„åˆ†å¸ƒ
+##--»s¹Ï¡A4class ª«ºØ¬ö¿ıµ§¼Æ/ª«ºØ¼Æ¶qªu®ü©Şªº¤À¥¬
 i=1
 
 class.list <- c("Total", "Amphibia", "Reptilia", "Aves", "Mammalia")
 
-##--è£½åœ–function
+##--»s¹Ïfunction
 class.plot <- 
   function(i, data_elev){
     C<- class.list[i] #class
@@ -708,8 +714,8 @@ class.plot <-
                          labels = nsci) +
       ggtitle(paste(C)) +
       theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 12),
-            axis.title = element_text(face = "bold", #å­—é«”("plain", "italic", "bold", "bold.italic")
-                                      #colour = "red", #å­—é«”é¡è‰²
+            axis.title = element_text(face = "bold", #¦rÅé("plain", "italic", "bold", "bold.italic")
+                                      #colour = "red", #¦rÅéÃC¦â
                                       size = 14),
             axis.text.y.right = element_text(size=12, face="plain", color = "#7491A6"),
             axis.title.y.right = element_text(size=14, face="bold", color = "#7491A6"),
@@ -733,15 +739,15 @@ ggsave(paste("Total","Elevation.png",sep="_"),
        plot= p[[1]],
        width = 11, height = 4, dpi = 500)
 
-####4class ç´€éŒ„ç‰©ç¨®æ•¸/ç­†æ•¸çš„æµ·æ‹”åˆ†å¸ƒ(é¢ç©æ ¡æ­£)####
+####4class ¬ö¿ıª«ºØ¼Æ/µ§¼Æªº®ü©Ş¤À¥¬(­±¿n®Õ¥¿)####
 #--import data
-#--åŒ¯å…¥æµ·æ‹”è³‡è¨Š20å…¬å°ºDEM [dem]
+#--¶×¤J®ü©Ş¸ê°T20¤½¤ØDEM [dem]
 dem <- raster(file.path(Dem.dir, Dem.fname))
 
-#--å°‡Finalçš„ä½œæ¨™ç³»çµ±è½‰æ›æˆèˆ‡demç›¸åŒ
+#--±NFinalªº§@¼Ğ¨t²ÎÂà´«¦¨»Pdem¬Û¦P
 Grid %<>% spTransform(CRS(proj4string(dem)))
 
-#--æˆªå–æ¯å€‹ç´€éŒ„é»ä½çš„æµ·æ‹”è³‡è¨Š [Final.elev]
+#--ºI¨ú¨C­Ó¬ö¿ıÂI¦ìªº®ü©Ş¸ê°T [Final.elev]
 sd.cols = c( "nRecord_Total", "nRecord_Amphibia", "nRecord_Reptilia", "nRecord_Aves", "nRecord_Mammalia",
              "nSpecies_Total", "nSpecies_Amphibia", "nSpecies_Reptilia", "nSpecies_Aves", "nSpecies_Mammalia")
 
@@ -767,12 +773,12 @@ data_elev <- data.table(Grid@data,
 fwrite(data_elev,file = "data_elev.csv")
 
 # data_elev<- fread("data_elev.csv")
-####è£½åœ–ï¼Œ4class ç‰©ç¨®ç´€éŒ„ç­†æ•¸/ç‰©ç¨®æ•¸é‡æ²¿æµ·æ‹”çš„åˆ†å¸ƒ####
+####»s¹Ï¡A4class ª«ºØ¬ö¿ıµ§¼Æ/ª«ºØ¼Æ¶qªu®ü©Şªº¤À¥¬####
 i=1
 
 class.list <- c("Total", "Amphibia", "Reptilia", "Aves", "Mammalia")
 
-##--è£½åœ–function
+##--»s¹Ïfunction
 class.plot <- 
   function(i, data_elev){
     C<- class.list[i] #class
@@ -806,8 +812,8 @@ class.plot <-
                          labels = nsci) +
       ggtitle(paste(C)) +
       theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 12),
-            axis.title = element_text(face = "bold", #å­—é«”("plain", "italic", "bold", "bold.italic")
-                                      #colour = "red", #å­—é«”é¡è‰²
+            axis.title = element_text(face = "bold", #¦rÅé("plain", "italic", "bold", "bold.italic")
+                                      #colour = "red", #¦rÅéÃC¦â
                                       size = 14),
             axis.text.y.right = element_text(size=12, face="plain", color = "#7491A6"),
             axis.title.y.right = element_text(size=14, face="bold", color = "#7491A6"),
@@ -835,7 +841,7 @@ ggsave(paste("Total","Elevation.png",sep="_"),
 
 ######################################################
 
-##--è£½åœ–function
+##--»s¹Ïfunction
 p <- ggplot() +
   geom_histogram(data = data_elev[elevation != -999],
                  aes(elevation),
@@ -843,7 +849,7 @@ p <- ggplot() +
   facet_wrap(~class, ncol = 1, scale = "free_y") +
   labs(x = "Elevation", y = "Number of records") +
   theme_bw()
-#-- å°‡åœ–ç‰‡å­˜æˆpng
+#-- ±N¹Ï¤ù¦s¦¨png
 ggsave("nRecord_elevation.png",
        plot = p,
        path = file.path(D2018, "analysis"),
@@ -858,7 +864,7 @@ sp.data.elev <- data.elev %>%
                          elev, 
                          elevation)] %>%
                 unique
-#-- ggplotè£½åœ–
+#-- ggplot»s¹Ï
 p <- ggplot() +
   geom_histogram(data = sp.data.elev[elevation != -999],
                  aes(elevation),
@@ -866,7 +872,7 @@ p <- ggplot() +
   facet_wrap(~class_c, ncol = 1, scale = "free_y") +
   labs(x = "Elevation", y = "Number of records") +
   theme_bw()
-#-- å°‡åœ–ç‰‡å­˜æˆpng
+#-- ±N¹Ï¤ù¦s¦¨png
 ggsave("nSpecies_elevation.png",
        plot = p,
        path = file.path(D2018, "analysis"),
@@ -875,36 +881,36 @@ ggsave("nSpecies_elevation.png",
 
 
 
-#-- æˆªå–ç¶²æ ¼ä¸­å¿ƒé» [Grid.c]
+#-- ºI¨úºô®æ¤¤¤ßÂI [Grid.c]
 Grid %<>% spTransform(CRS(proj4stTypeing(dem)))
 Grid.c <- data.table(gCentroid(Grid, byid = TRUE)@coords,
                      Grid = Grid@data$Grid)
-#-- æˆªå–ç¶²æ ¼ä¸­å¿ƒé»çš„æµ·æ‹”ï¼Œç¶²æ ¼æµ·æ‹”ç‚ºNAè€…å¡«å…¥0
+#-- ºI¨úºô®æ¤¤¤ßÂIªº®ü©Ş¡Aºô®æ®ü©Ş¬°NAªÌ¶ñ¤J0
 Grid.c[, elev := raster::extract(dem, Grid.c[, c("x", "y")])] %>%
   .[is.na(elev), elev := 0]
-#-- åˆ†æµ·æ‹”æ®µï¼ŒL = ~1000ï¼ŒM = 1001~2500ï¼ŒH = 2501~
+#-- ¤À®ü©Ş¬q¡AL = ~1000¡AM = 1001~2500¡AH = 2501~
 Grid.c[elev <= 1000, E.zone := "L"] %>%
   .[elev > 1000 & elev <= 2500, E.zone := "M"] %>%
   .[elev > 2500, E.zone := "H"]
-#-- åˆä½µç‰©ç¨®èª¿æŸ¥è³‡è¨Š[Final.agg]è·Ÿç¶²æ ¼è³‡è¨Š[Grid.c]
+#-- ¦X¨Öª«ºØ½Õ¬d¸ê°T[Final.agg]¸òºô®æ¸ê°T[Grid.c]
 Grid.c %<>% Final.agg[., on = "Grid"]
 #--
-table(Grid.c[, E.zone]) # å…¨å°ç¶²æ ¼æ•¸
-table(Grid.c[!is.na(Amphibia), E.zone]) # å…©ç”Ÿç¶±ç¶²æ ¼æ•¸
-table(Grid.c[!is.na(Reptilia), E.zone]) # çˆ¬èŸ²ç¶±ç¶²æ ¼æ•¸
-table(Grid.c[!is.na(Mammalia), E.zone]) # å“ºä¹³ç¶±ç¶²æ ¼æ•¸
-table(Grid.c[!is.na(Aves), E.zone]) # é³¥ç¶±ç¶²æ ¼æ•¸
+table(Grid.c[, E.zone]) # ¥ş¥xºô®æ¼Æ
+table(Grid.c[!is.na(Amphibia), E.zone]) # ¨â¥Íºõºô®æ¼Æ
+table(Grid.c[!is.na(Reptilia), E.zone]) # ª¦ÂÎºõºô®æ¼Æ
+table(Grid.c[!is.na(Mammalia), E.zone]) # ­÷¨Åºõºô®æ¼Æ
+table(Grid.c[!is.na(Aves), E.zone]) # ³¾ºõºô®æ¼Æ
 table(Grid.c[!is.na(Amphibia) | 
                !is.na(Reptilia) | 
                !is.na(Mammalia) |
-               !is.na(Aves), E.zone]) # æ‰€æœ‰æœ‰ç´€éŒ„ç‰©ç¨®çš„ç¶²æ ¼æ•¸
+               !is.na(Aves), E.zone]) # ©Ò¦³¦³¬ö¿ıª«ºØªººô®æ¼Æ
 #   H     L     M 
-#1831 26079  9642 å…¨å° 
-#  11  2040   204 å…©ç”Ÿ
-#  23  4630   469 çˆ¬èŸ²
-# 171  2084   797 å“ºä¹³
-# 108  4577   550 é³¥
-# 218  8801  1359 æ‰€æœ‰ç‰©ç¨®
+#1831 26079  9642 ¥ş¥x 
+#  11  2040   204 ¨â¥Í
+#  23  4630   469 ª¦ÂÎ
+# 171  2084   797 ­÷¨Å
+# 108  4577   550 ³¾
+# 218  8801  1359 ©Ò¦³ª«ºØ
 
 #C <- readOGR(C.dir, "COUNTY_MOI_1060525")
 #All.data$COUNTYNAME <- over(All.data, C[, "COUNTYNAME"])$COUNTYNAME
