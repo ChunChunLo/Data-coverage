@@ -33,27 +33,12 @@ For Terrestrial vertebrates
 
 
 
-# 對照物種資訊
+
 `名錄有一堆問題呦 O_____<`
-
-
 ## **不**比對 TaiBNET 名錄
-### 無物種資訊之紀錄
-資料量：8,110  
-物種數：8  
-ie.: 紅領綠鸚鵡, 王氏樹蛙, 碧眼樹蛙, 斑脇秧雞, 短翅樹鶯（日本樹鶯）, 台灣小鶯(小鶯), 藍喉蜂虎, 泰國八哥
 
 
 
-### 可對上物種資訊之紀錄  `D:/Chun/Analysis/RRR/Dataset/data_coverage_201801219.rds`
-資料量：3,142,416  
-物種數：834
-#### All data
-
-
-
-
-#### Alien species
 
 
 
