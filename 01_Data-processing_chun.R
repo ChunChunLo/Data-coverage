@@ -21,34 +21,35 @@ library(readxl)
 #---- Set environment
 D2018 <- "D:/Chun/Analysis/RRR/Dataset"
 
+All.data_ori <- readRDS(file.path(D2018, "Ori_Dataset.rds"))
 
-GBIF <- "D:/Chun/Analysis/RRR/Dataset/GBIF"
-TBIF <- "D:/Chun/Analysis/RRR/Dataset/TaiBIF"
-D2018 <- "D:/Chun/Analysis/RRR/Dataset"
-ebd <- file.path( "D:/Chun/Analysis/RRR/Dataset/ebd_TW_200001_201712_prv_relMay-2017")
-CWBF <- file.path( "D:/Chun/Analysis/RRR/Dataset/eBird historic data")
-#------------------ for TaiBIF and GBIF data
+# ####
+#  GBIF <- "D:/Chun/Analysis/RRR/Dataset/GBIF"
+#  TBIF <- "D:/Chun/Analysis/RRR/Dataset/TaiBIF"
+#  D2018 <- "D:/Chun/Analysis/RRR/Dataset"
+#  ebd <- file.path( "D:/Chun/Analysis/RRR/Dataset/ebd_TW_200001_201712_prv_relMay-2017")
+#  CWBF <- file.path( "D:/Chun/Analysis/RRR/Dataset/eBird historic data")
+#  # get RDS for each dataset
+#  GBIF.L <-
+#    list.files(GBIF, full.names = T) %>%
+#    .[c(2, 5:7)]
+#  TBIF.L <-
+#    list.files(TBIF, full.names = T) %>%
+#    .[c(1:2,4,6)]
+# 
+#  # 讀入所有資料集+增加資料來源(Project)&調查時間欄位(Date)##
+#  All.data_ori <-
+#    lapply(c(GBIF.L, TBIF.L, ebd, CWBF, D2018), function(x){
+#      readRDS(file.path(x, "data.rds"))}) %>%
+#    do.call("rbind", .) %>%
+#    .[, eventID1 := eventID] %>%
+#    separate(eventID1, c("Project", "Date", "T","ID"), "_") %>%
+#    .[,c( "T", "ID"):= NULL ] %>%
+#    setnames(., c("common_name_T", "scientific_name"), c("Ori_common_name_T", "Ori_scientific_name") )
 
-# get RDS for each dataset
-GBIF.L <- 
-  list.files(GBIF, full.names = T) %>%
-  .[c(2, 5:7)]
-TBIF.L <- 
-  list.files(TBIF, full.names = T) %>%
-  .[c(1:2,4,6)]
-
-# 讀入所有資料集+增加資料來源(Project)&調查時間欄位(Date)##
-All.data_ori <- 
-  lapply(c(GBIF.L, TBIF.L, ebd, CWBF, D2018), function(x){
-    readRDS(file.path(x, "data.rds"))}) %>%
-  do.call("rbind", .) %>%  
-  .[, eventID1 := eventID] %>%
-  separate(eventID1, c("Project", "Date", "T","ID"), "_") %>%  
-  .[,c( "T", "ID"):= NULL ] %>%
-  setnames(., c("common_name_T", "scientific_name"), c("Ori_common_name_T", "Ori_scientific_name") )
-#*************************************************##
 # saveRDS(All.data_ori, file.path(D2018, "All.data_ori.rds"))
 # All.data_ori <- readRDS(file.path(D2018, "All.data_ori.rds"))
+#*************************************************##
 
 #----Summary
 All.data_ori %>%

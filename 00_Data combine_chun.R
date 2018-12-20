@@ -7,10 +7,10 @@ library(tidyr)
 #### 讀入資料####
 #------------------ TBN and RK data set#####
 #---- set environment
-D2017 <- file.path( "D:/Chun/Analysis/RRR/Dataset")
+D2018 <- file.path( "D:/Chun/Analysis/RRR/Dataset")
 #---- import data
 TBN <- 
-  fread(file.path(D2017, "TBN_keepinTW_20170619_TWD97.csv"),
+  fread(file.path(D2018, "TBN_keepinTW_20170619_TWD97.csv"),
         sep = ",")  %>%
   .[, which(unlist(lapply(., function(x)!all(is.na(x))))),with=F] %>%          
   .[, month := sprintf("%02d", as.numeric(month))] %>%
@@ -41,7 +41,7 @@ TBN <-
           individual_count)]
 
 RK <- 
-  fread(file.path(D2017, "RK_keepinTW_20170619_TWD97.csv"),
+  fread(file.path(D2018, "RK_keepinTW_20170619_TWD97.csv"),
         sep = ",") %>%
   .[, which(unlist(lapply(., function(x)!all(is.na(x))))),with=F] %>%          
   .[, month := sprintf("%02d", as.numeric(month))] %>%
@@ -503,7 +503,7 @@ HLC <-
 dfs = sapply(.GlobalEnv, is.data.frame) # 列出現有變數: objects() or ls()
 Data <- do.call(rbind, mget(names(dfs)[dfs])) %>%
   .[, Year := as.numeric(Year)] %>%
-  .[, Month := sprintf("%02d", as.numeric(Month))] %>%
+  .[, Month := as.numeric(Month)] %>% 
   .[, Longitude := as.numeric(Longitude)] %>%
   .[, Latitude := as.numeric(Latitude)] %>%
   .[, individual_count := as.numeric(individual_count)]
@@ -511,8 +511,8 @@ Data <- do.call(rbind, mget(names(dfs)[dfs])) %>%
 
 
 # #---- export as RDS
-# saveRDS(Data, file.path(D2017, "Ori_Dataset.rds"))
-# Data <- readRDS(file.path(D2017, "Ori_Dataset.rds"))
+# saveRDS(Data, file.path(D2018, "Ori_Dataset.rds"))
+# Data <- readRDS(file.path(D2018, "Ori_Dataset.rds"))
 
 
 #---- 輸出物種資訊
@@ -523,6 +523,9 @@ Data_sp.list <-
   unique
 
 write.csv(Data_sp.list, 
-       file.path(D2017, "Dataset_sp.list.csv"))
+       file.path(D2018, "Dataset_sp.list.csv"))
+
+#----
+
 
 

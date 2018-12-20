@@ -59,9 +59,20 @@ All.data <-
 Alien <- All.data %>%
   .[is_alien != "0"] #Alien species
 
+Alien %>%
+  .[, list(Project, scientific_name, individual_count)] %>%
+  .[, .(nRecord = .N,
+        nSpecies = uniqueN(scientific_name)), by = list(Project)]
+
 ##--native species
 All.data %>%
   .[is_alien == "0"] #native species
+
+All.data_NA %>%
+  .[, list(Project, Ori_scientific_name, individual_count)] %>%
+  .[, .(nRecord = .N,
+        nSpecies = uniqueN(Ori_scientific_name)), by = list(Project)]
+
 
 save(All.data,
      file= file.path(D2018,"data_coverage_native.rds"))
