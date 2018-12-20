@@ -12,7 +12,7 @@ For Terrestrial vertebrates
 - 蒐集資訊：
     Species, Year, Month, Longitude, Latitude, Event ID, (Individual count)
 
-## 匯入所有資料集  `D:/Chun/Analysis/RRR/Dataset/All.data_ori.rds`
+## 匯入所有資料集  `D:/Chun/Analysis/RRR/Dataset/Ori_Dataset.rds`
 1. 國家公園(~2016)  
 2. eBird (2000/01~2017/12) (ebd)  
 3. 中華民國野鳥學會資料庫CWBF (2017) (CWBF) 
