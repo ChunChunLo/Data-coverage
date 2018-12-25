@@ -1,3 +1,8 @@
+#-----------------------
+#title: "Data cleaning"
+#author: "Chun"
+#date: "25 Dec. 2018"
+#-----------------------
 #------------------ load packages
 library(data.table)
 library(magrittr)
@@ -508,24 +513,197 @@ Data <- do.call(rbind, mget(names(dfs)[dfs])) %>%
   .[, Latitude := as.numeric(Latitude)] %>%
   .[, individual_count := as.numeric(individual_count)]
 
-
-
+#### 輸出資料 ####
 # #---- export as RDS
 # saveRDS(Data, file.path(D2018, "Ori_Dataset.rds"))
 # Data <- readRDS(file.path(D2018, "Ori_Dataset.rds"))
+# #---- 輸出物種資訊
+# Data_sp.list <-
+#   Data[, list(common_name_T_ori,
+#             scientific_name_ori,
+#             accepted_name_code)] %>%
+#   .[, .(Count = .N),
+#     by = list(common_name_T_ori, scientific_name_ori, accepted_name_code)]
+# 
+# write.csv(Data_sp.list,
+#        file.path(D2018, "Dataset_sp.list.csv"))
+
+#### 資料 Summary ####
 
 
-#---- 輸出物種資訊
+
+#---- load packages
+library(data.table)
+library(magrittr)
+library(rgdal)
+library(tidyr)
+library(readxl)
+#---- Set environment
+D2018 <- "D:/Chun/Analysis/RRR/Dataset"
+
+Data <- readRDS(file.path(D2018, "Ori_Dataset.rds"))
+
+#變量轉為數值 (as.numeric針對vector)
+Data$Year %<>% as.numeric
+Data$Month %<>% as.numeric
+Data$Latitude %<>% as.numeric
+Data$Longitude %<>% as.numeric
+Data$individual_count %<>% as.numeric
+
+#----Summary
 Data_sp.list <- 
   Data[, list(common_name_T_ori, 
-            scientific_name_ori,
-            accepted_name_code)] %>%
-  unique
+              scientific_name_ori,
+              accepted_name_code)] %>%
+  .[, .(Count = .N),
+    by = list(common_name_T_ori, scientific_name_ori, accepted_name_code)]
 
-write.csv(Data_sp.list, 
-       file.path(D2018, "Dataset_sp.list.csv"))
+Data_Point.list <- 
+  Data[, list(Longitude, Latitude)] %>%
+  .[, .(Count = .N),
+    by = list(Longitude, Latitude)]
 
-#----
+Data_Time.list <- 
+  Data[, list(Year, Month)] %>%
+  .[, .(Count = .N),
+    by = list(Year, Month)]
+
+
+summary(Data_ori)
+
+#----加總 相同物種資訊、地點、時間、事件之紀錄
+Data %<>%
+  .[ !is.na(individual_count) ] %>% 
+  .[, individual_count := as.numeric(individual_count)] %>%
+  .[ , .(individual_count = sum(individual_count )), 
+     by = list(common_name_T_ori, scientific_name_ori, accepted_name_code, 
+               Year, Month, 
+               Longitude, Latitude,
+               eventID, Project) ] %>%
+  rbind(., Data[ is.na(individual_count) ]) %>% 
+  unique 
+
+#----Summary
+Data_sp.list <- 
+  Data[, list(common_name_T_ori, 
+              scientific_name_ori,
+              accepted_name_code)] %>%
+  .[, .(Count = .N),
+    by = list(common_name_T_ori, scientific_name_ori, accepted_name_code)]
+
+Data_Point.list <- 
+  Data[, list(Longitude, Latitude)] %>%
+  .[, .(Count = .N),
+    by = list(Longitude, Latitude)]
+
+Data_Time.list <- 
+  Data[, list(Year, Month)] %>%
+  .[, .(Count = .N),
+    by = list(Year, Month)]
 
 
 
+# 
+# Data %>%
+#   .[, list(Project, accepted_name_code, individual_count)] %>%
+#   .[, .(nRecord = .N,
+#         nSpecies = ), by = list(Project)]
+
+
+#### 刪除網格外之紀錄
+#---- load packages
+library(data.table)
+library(magrittr)
+library(readxl)
+library(ggplot2)
+library(rgdal)
+library(plyr)
+library(dplyr)
+library(raster)
+library(rgeos)
+library(RColorBrewer) #配色用brewer.pal( 9 , "Reds" )
+library(ggpubr)
+library(scales)
+
+
+#---- Set environment
+#--from
+D2018 <- "D:/Chun/Analysis/RRR/Dataset"
+#--Grid
+Grid.dir <- "D:/Chun/Analysis/GIS/Taiwan/grid_system_tw_terrestrial_v20180511"
+Grid.fname <- "g1km_epsg4326"
+#--wd
+wd <- file.path(paste0(D2018,"/analysis/Result"))
+setwd(wd) 
+##############################################資料準備
+#--資料匯入
+All.data <- Data
+
+####刪除跳海點位####
+
+#--turn DF to SpatialPointDF
+#epsg:4326>>WGS84
+#epsg:3828>>TWD67
+#epsg:3826>>TWD97
+
+All.data %<>% .[!is.na(Longitude)] %>%
+  .[!is.na(Latitude)]
+
+coordinates(All.data) <- ~ Longitude + Latitude
+proj4string(All.data) <- CRS("+init=epsg:4326") #epsg:4326>>WGS84
+
+#--load polygon of Taiwan
+Grid <- readOGR(Grid.dir, 
+                Grid.fname,
+                encoding="UTF-8", use_iconv=TRUE)
+Grid %<>% spTransform(CRS("+init=epsg:4326"))
+Grid@data %<>% setnames(.,"Id","GID") # change column name
+
+#--刪除跳海 select data in Taiwan only 
+All.data.s <- 
+  All.data[subset(Grid), ]
+
+#--抓取經緯資料
+All.data.s@data <- 
+  cbind(All.data.s@data, All.data.s@coords) %>%
+  setDT 
+
+
+Data_Grid <- All.data.s@data
+# saveRDS(Data_Grid, file.path("Dataset_Grid range.rds"))
+# fwrite(Data_Grid, 
+#        file= file.path("Dataset_Grid range.txt"))
+
+#----Summary
+Data_sp.list <- 
+  Data_Grid[, list(common_name_T_ori, 
+              scientific_name_ori,
+              accepted_name_code)] %>%
+  .[, .(Count = .N),
+    by = list(common_name_T_ori, scientific_name_ori, accepted_name_code)]
+
+Data_Point.list <- 
+  Data_Grid[, list(Longitude, Latitude)] %>%
+  .[, .(Count = .N),
+    by = list(Longitude, Latitude)]
+
+Data_Time.list <- 
+  Data_Grid[, list(Year, Month)] %>%
+  .[, .(Count = .N),
+    by = list(Year, Month)]
+
+# ####套入網格編號 spatial join 網格ID到All.data####
+# #--import data 匯入網格 [Grid]
+# Grid <- readOGR(Grid.dir, 
+#                 Grid.fname,
+#                 encoding="UTF-8", use_iconv=TRUE)
+# Grid %<>% spTransform(CRS("+init=epsg:4326"))
+# Grid@data %<>% setnames(.,"ID","GID")  # change column name
+# 
+# #--spatial join
+# All.data.s$GID <- over(All.data.s, Grid[, "GID"])$GID
+# All.data.s_geo <- All.data.s
+# 
+# #--將All.data.sSPDF轉回DF
+# All.data.s <- All.data.s@data %>%
+#   setDT
