@@ -12,7 +12,8 @@ For Terrestrial vertebrates
 - 蒐集資訊：
     Species, Year, Month, Longitude, Latitude, Event ID, (Individual count)
 
-## 匯入所有資料集  `D:/Chun/Analysis/RRR/Dataset/Ori_Dataset.rds`
+## 匯入所有資料集  
+`D:/Chun/Analysis/RRR/Dataset/Ori_Dataset.rds`
 1. 國家公園(~2016)  
 2. eBird (2000/01~2017/12) (ebd)  
 3. 中華民國野鳥學會資料庫CWBF (2017) (CWBF)  
@@ -47,7 +48,9 @@ For Terrestrial vertebrates
 |樣點數     |70757 筆      | 201 筆 NA                          |
 |時間範圍   |1972/7~2017/5 | 8 筆 0/0; 3 筆 NA/NA; 36 筆 2101/12|
 
-## 刪除網格外之樣點 `D:/Chun/Analysis/RRR/Dataset/analysis/Result/Dataset_Grid range.rds`
+## 刪除網格外之樣點
+`D:/Chun/Analysis/RRR/Dataset/analysis/Result/Dataset_Grid range.rds`  
+
 |          |紀錄筆數       |異常資料                             |
 |----------|-------------:|------------------------------------|
 |資料筆數   |3168226 筆    |                                    |
