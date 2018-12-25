@@ -21,54 +21,56 @@ library(readxl)
 #---- Set environment
 D2018 <- "D:/Chun/Analysis/RRR/Dataset"
 
-All.data_ori <- readRDS(file.path(D2018, "Ori_Dataset.rds"))
 
-# ####
-#  GBIF <- "D:/Chun/Analysis/RRR/Dataset/GBIF"
-#  TBIF <- "D:/Chun/Analysis/RRR/Dataset/TaiBIF"
-#  D2018 <- "D:/Chun/Analysis/RRR/Dataset"
-#  ebd <- file.path( "D:/Chun/Analysis/RRR/Dataset/ebd_TW_200001_201712_prv_relMay-2017")
-#  CWBF <- file.path( "D:/Chun/Analysis/RRR/Dataset/eBird historic data")
-#  # get RDS for each dataset
-#  GBIF.L <-
-#    list.files(GBIF, full.names = T) %>%
-#    .[c(2, 5:7)]
-#  TBIF.L <-
-#    list.files(TBIF, full.names = T) %>%
-#    .[c(1:2,4,6)]
-# 
-#  # 讀入所有資料集+增加資料來源(Project)&調查時間欄位(Date)##
-#  All.data_ori <-
-#    lapply(c(GBIF.L, TBIF.L, ebd, CWBF, D2018), function(x){
-#      readRDS(file.path(x, "data.rds"))}) %>%
-#    do.call("rbind", .) %>%
-#    .[, eventID1 := eventID] %>%
-#    separate(eventID1, c("Project", "Date", "T","ID"), "_") %>%
-#    .[,c( "T", "ID"):= NULL ] %>%
-#    setnames(., c("common_name_T", "scientific_name"), c("Ori_common_name_T", "Ori_scientific_name") )
+#--------------------------------------####
+ GBIF <- "D:/Chun/Analysis/RRR/Dataset/GBIF"
+ TBIF <- "D:/Chun/Analysis/RRR/Dataset/TaiBIF"
+ D2018 <- "D:/Chun/Analysis/RRR/Dataset"
+ ebd <- file.path( "D:/Chun/Analysis/RRR/Dataset/ebd_TW_200001_201712_prv_relMay-2017")
+ CWBF <- file.path( "D:/Chun/Analysis/RRR/Dataset/eBird historic data")
+ # get RDS for each dataset
+ GBIF.L <-
+   list.files(GBIF, full.names = T) %>%
+   .[c(2, 5:7)]
+ TBIF.L <-
+   list.files(TBIF, full.names = T) %>%
+   .[c(1:2,4,6)]
 
-# saveRDS(All.data_ori, file.path(D2018, "All.data_ori.rds"))
-# All.data_ori <- readRDS(file.path(D2018, "All.data_ori.rds"))
-#*************************************************##
+ # 讀入所有資料集+增加資料來源(Project)&調查時間欄位(Date)##
+ Data_ori <-
+   lapply(c(GBIF.L, TBIF.L, ebd, CWBF, D2018), function(x){
+     readRDS(file.path(x, "data.rds"))}) %>%
+   do.call("rbind", .) %>%
+   .[, eventID1 := eventID] %>%
+   separate(eventID1, c("Project", "Date", "T","ID"), "_") %>%
+   .[,c( "T", "ID"):= NULL ] %>%
+   setnames(., c("common_name_T", "scientific_name"), c("Ori_common_name_T", "Ori_scientific_name") )
+saveRDS(Data_ori, file.path(D2018, "Data_ori.rds"))
 
-#----Summary
-All.data_ori %>%
-  .[, list(Project, accepted_name_code, individual_count)] %>%
-  .[, .(nRecord = .N,
-        nSpecies = uniqueN(accepted_name_code)), by = list(Project)]
-
-summary(All.data_ori)
+Data_ori <- readRDS(file.path(D2018, "Data_ori.rds"))
+#--------------------------------------####
 
 #變量轉為數值 (as.numeric針對vector)
-All.data_ori$Year %<>% as.numeric
-All.data_ori$Month %<>% as.numeric
-All.data_ori$Latitude %<>% as.numeric
-All.data_ori$Longitude %<>% as.numeric
-All.data_ori$individual_count %<>% as.numeric
+Data_ori$Year %<>% as.numeric
+Data_ori$Month %<>% as.numeric
+Data_ori$Latitude %<>% as.numeric
+Data_ori$Longitude %<>% as.numeric
+Data_ori$individual_count %<>% as.numeric
+
+#----Summary
+Data <- Data_ori
+
+Data %>%
+  .[, list(Project, accepted_name_code, individual_count)] %>%
+  .[, .(nRecord = .N,
+        nSpecies = uniqueN( accepted_name_code)), by = list(Project)]
+
+summary(Data_ori)
+
 
 #-- 物種數=0 視為NA (n=0)
-All.data_ori[individual_count==0] %>% nrow
-All.data_ori %<>% .[individual_count==0, individual_count:= NA]
+Data[individual_count==0] %>% nrow
+Data %<>% .[individual_count==0, individual_count:= NA]
 
 #---- 對照物種資訊
 # 載入物種清單資訊 (class欄位) [list.s]
@@ -81,10 +83,10 @@ list.s <-
   unique
 
 # 對照物種清單
-All.data_ori %<>%
+Data %<>%
   list.s[. , on = "accepted_name_code"]
 
-All.data_ori %<>%
+Data %<>%
   .[ !is.na(individual_count) ] %>% 
   .[, individual_count := as.numeric(individual_count)] %>%
   .[ , .(individual_count = sum(individual_count )), 
@@ -95,30 +97,30 @@ All.data_ori %<>%
                Longitude, Latitude,
                eventID, Project, Date,
                is_endemic, is_alien, is_invasive) ] %>%
-  rbind(., All.data_ori[ is.na(individual_count) ]) %>% 
+  rbind(., Data[ is.na(individual_count) ]) %>% 
   unique 
 
 ## 無物種資訊之紀錄
-All.data_NA <- All.data_ori %>%
+Data_NA <- Data %>%
   .[is.na(scientific_name)]
 
-All.data_NA %>%
+Data_NA %>%
   .[, list(Project, accepted_name_code, individual_count)] %>%
   .[, .(nRecord = .N,
         nSpecies = uniqueN(accepted_name_code)), by = list(Project)]
 
 ## 對上物種資訊之紀錄
-All.data <- All.data_ori %>%
+Data_sp <- Data %>%
   .[!is.na(scientific_name)]
 
-All.data %>%
+Data_sp %>%
   .[, list(Project, accepted_name_code, individual_count)] %>%
   .[, .(nRecord = .N,
         nSpecies = uniqueN(accepted_name_code)), by = list(Project)]
 
 
 #---- export as .RData
-saveRDS(All.data, 
+saveRDS(Data_sp, 
      file= file.path(D2018,"data_coverage_20181219.rds"))
 #================= End
 
