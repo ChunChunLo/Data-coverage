@@ -44,7 +44,7 @@ D2018 <- "D:/Chun/Analysis/RRR/Dataset"
    .[, eventID1 := eventID] %>%
    separate(eventID1, c("Project", "Date", "T","ID"), "_") %>%
    .[,c( "T", "ID"):= NULL ] %>%
-   setnames(., c("common_name_T", "scientific_name"), c("Ori_common_name_T", "Ori_scientific_name") )
+   setnames(., c("common_name_c", "scientific_name"), c("Ori_common_name_c", "Ori_scientific_name") )
 saveRDS(Data_ori, file.path(D2018, "Data_ori.rds"))
 
 Data_ori <- readRDS(file.path(D2018, "Data_ori.rds"))
@@ -74,25 +74,25 @@ Data %<>% .[individual_count==0, individual_count:= NA]
 
 #---- 對照物種資訊
 # 載入物種清單資訊 (class欄位) [list.s]
-list.s <-
+list.sp <-
   read_xlsx(file.path(D2018,"data coverage_species list.xlsx"),sheet = 1) %>%
   setDT %>%
-  .[,c("accepted_name_code", "common_name_T",
+  .[,c("accepted_name_code", "common_name_c",
        "class_c", "order_c", "family_c", "genus_c", "scientific_name",
        "is_endemic", "is_alien", "is_invasive")] %>%
   unique
 
 # 對照物種清單
 Data %<>%
-  list.s[. , on = "accepted_name_code"]
+  list.sp[. , on = "accepted_name_code"]
 
 Data %<>%
   .[ !is.na(individual_count) ] %>% 
   .[, individual_count := as.numeric(individual_count)] %>%
   .[ , .(individual_count = sum(individual_count )), 
-     by = list(accepted_name_code, common_name_T,
+     by = list(accepted_name_code, common_name_c,
                class_c, order_c, family_c, genus_c,scientific_name,
-               Ori_common_name_T, Ori_scientific_name, 
+               Ori_common_name_c, Ori_scientific_name, 
                Year, Month, 
                Longitude, Latitude,
                eventID, Project, Date,

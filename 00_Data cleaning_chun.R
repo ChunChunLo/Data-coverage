@@ -24,7 +24,7 @@ TBN <-
   .[, Project := paste("TBN")] %>% 
   .[, eventID := paste("TBN", eventDate, "NA", "NA", sep = "_")] %>%
   .[, individual_count := NA ] %>%
-  .[, list(common_name_T_ori = Cname,
+  .[, list(common_name_c_ori = Cname,
            scientific_name_ori = species,
            accepted_name_code = acc_nameco,
            Year = year, 
@@ -34,7 +34,7 @@ TBN <-
            Project,
            eventID, 
            individual_count )]  %>% 
- .[, list(common_name_T_ori, 
+ .[, list(common_name_c_ori, 
           scientific_name_ori,
           accepted_name_code, 
           Year, 
@@ -55,7 +55,7 @@ RK <-
   .[, Project := paste("RK") ] %>%
   .[, eventID := paste("RK", eventDate, "NA", "NA", sep = "_")] %>%
   .[, individual_count := NA ] %>%
-  .[, list(common_name_T_ori = Cname,
+  .[, list(common_name_c_ori = Cname,
            scientific_name_ori = species,
            accepted_name_code = acc_nameco,
            Year = year, 
@@ -65,7 +65,7 @@ RK <-
            Project,
            eventID, 
            individual_count )] %>%
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori,
            accepted_name_code, 
            Year, 
@@ -88,7 +88,7 @@ ebd <-
   .[, which(unlist(lapply(., function(x)!all(is.na(x))))),with=F] %>%
   .[, list(category = CATEGORY,
            common_name = `COMMON NAME`,
-           common_name_T_ori = NA,
+           common_name_c_ori = NA,
            scientific_name_ori = `SCIENTIFIC NAME`,
            accepted_name_code = NA, 
            subspecies_scientific_name_ori = `SUBSPECIES SCIENTIFIC NAME`,
@@ -133,7 +133,7 @@ ebd %>% dim %>% .[1]
 ebd.unique %>% dim %>% .[1]
 
 ebd <- ebd.unique
-ebd %<>%  .[, list(common_name_T_ori, 
+ebd %<>%  .[, list(common_name_c_ori, 
                    scientific_name_ori,
                    accepted_name_code, 
                    Year, 
@@ -157,7 +157,7 @@ CWBF <-
                   "eBird格式鳥種紀錄_補充資訊_0115修正.csv"),
         sep = "|", encoding = "UTF-8") %>%
   .[, which(unlist(lapply(., function(x)!all(is.na(x))))),with=F] %>%
-  .[, list(common_name_T_ori = `Common Name`,
+  .[, list(common_name_c_ori = `Common Name`,
            scientific_name_ori = paste(Genus, Species, sep= " "),
            accepted_name_code = NA,
            eventDate = `Date`,
@@ -176,7 +176,7 @@ CWBF <-
   .[, Project := paste("CWBF")] %>%
   .[, eventID := paste("CWBF", eventDate, eventTime, Sampling_ID, sep = "_")] %>%
   .[, individual_count := as.numeric(individual_count)] %>% 
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori,
            accepted_name_code, 
            Year, 
@@ -214,7 +214,7 @@ F4th <-
       (!is.na(scientificName) & scientificName != "") |
       (!is.na(acceptedNameUsage) & acceptedNameUsage!= "") |
       (!is.na(vernacularName) & vernacularName != "")] %>%
-  .[, list(common_name_T_ori = vernacularName,
+  .[, list(common_name_c_ori = vernacularName,
            scientific_name_ori = scientificName,
            accepted_name_code = acceptedNameUsageID,
            Year,
@@ -224,7 +224,7 @@ F4th <-
            Project, 
            eventID = eventID) ]  %>%
   .[,individual_count := NA] %>% 
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori,
            accepted_name_code, 
            Year, 
@@ -253,7 +253,7 @@ CY.ML <-
   .[, Project := paste( "CY.ML")] %>%
   .[, eventID := paste( "CY.ML",  eventDate, sep="_")] %>%
   separate(eventDate, c("Year", "Month", "Date"), "-") %>%
-  .[, list(common_name_T_ori = vernacularName,
+  .[, list(common_name_c_ori = vernacularName,
            scientific_name_ori = scientificName,
            accepted_name_code = acceptedNameUsageID,
            Year,
@@ -263,7 +263,7 @@ CY.ML <-
            Project, 
            eventID)] %>%
   .[, individual_count := NA] %>%
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori,
            accepted_name_code, 
            Year, 
@@ -291,7 +291,7 @@ Frog <-
   setDT %>%
   .[, Project := paste( "Frog")] %>%
   .[, eventID := paste( "Frog", eventDate, sep="_")]%>%
-  .[, list(common_name_T_ori = vernacularName,
+  .[, list(common_name_c_ori = vernacularName,
            scientific_name_ori = scientificName,
            accepted_name_code = NA, 
            Year = year,
@@ -301,7 +301,7 @@ Frog <-
            Project, 
            eventID,
            individual_count = individualCount)] %>%
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori,
            accepted_name_code, 
            Year, 
@@ -328,7 +328,7 @@ BBS <-
   .[, eventTime := gsub("+0800", "", eventTime , fixed = TRUE)] %>%
   .[, Project := paste( "BBS")] %>%
   .[, eventID := paste( "BBS", eventDate, eventTime,sep="_")] %>%
-  .[, list(common_name_T_ori = vernacularName,
+  .[, list(common_name_c_ori = vernacularName,
            scientific_name_ori = scientificName,
            accepted_name_code = NA,
            Year = year,
@@ -338,7 +338,7 @@ BBS <-
            Project, 
            eventID = eventID,
            individual_count = individualCount)] %>%
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori, 
            accepted_name_code, 
            Year, 
@@ -366,7 +366,7 @@ Augu101 <-
   .[, eventDate := paste(year, month, day, sep="-")] %>%
   .[, Project := paste("Augu101")] %>%
   .[, eventID := paste("Augu101", eventDate, sep="_")] %>%
-  .[, list(common_name_T_ori = vernacularName,
+  .[, list(common_name_c_ori = vernacularName,
            scientific_name_ori = scientificName,
            accepted_name_code = NA, 
            Year = year,
@@ -376,7 +376,7 @@ Augu101 <-
            Project, 
            eventID,
            individual_count = individualCount)] %>%
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori,
            accepted_name_code, 
            Year, 
@@ -405,7 +405,7 @@ Augu102 <-
   .[, eventDate := paste(year, month, day, sep="-")] %>%
   .[, Project := paste("Augu102")] %>%
   .[, eventID := paste("Augu102", eventDate, sep="_")] %>%
-  .[, list(common_name_T_ori = vernacularName,
+  .[, list(common_name_c_ori = vernacularName,
            scientific_name_ori = scientificName,
            accepted_name_code = NA,
            Year = year,
@@ -415,7 +415,7 @@ Augu102 <-
            Project, 
            eventID,
            individual_count = individualCount)] %>%
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori,
            accepted_name_code,
            Year, 
@@ -444,7 +444,7 @@ Inv <-
   .[, eventDate := paste(Year, Month, Date, sep="-")] %>%
   .[, Project := paste("Inv")] %>%
   .[, eventID := paste("Inv",eventDate,sep="_")] %>%
-  .[, list(common_name_T_ori = vernacularName,
+  .[, list(common_name_c_ori = vernacularName,
            scientific_name_ori = paste0(genus, " ", specificEpithet),
            accepted_name_code = acceptedNameUsageID,
            Year,
@@ -454,7 +454,7 @@ Inv <-
            Project, 
            eventID,
            individual_count = individualCount)] %>%
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori,
            accepted_name_code, 
            Year, 
@@ -483,7 +483,7 @@ HLC <-
   .[, eventDate := paste(Year, Month, Date, sep="-")] %>%
   .[, Project := paste("HLC")] %>%
   .[, eventID := paste("HLC",eventDate,sep="_")] %>%
-  .[, list(common_name_T_ori = vernacularName,
+  .[, list(common_name_c_ori = vernacularName,
            scientific_name_ori = scientificName,
            accepted_name_code = NA,
            Year,
@@ -493,7 +493,7 @@ HLC <-
            Project, 
            eventID,
            individual_count = individualCount)] %>%
-  .[, list(common_name_T_ori, 
+  .[, list(common_name_c_ori, 
            scientific_name_ori,
            accepted_name_code,
            Year, 
@@ -519,11 +519,11 @@ Data <- do.call(rbind, mget(names(dfs)[dfs])) %>%
 # Data <- readRDS(file.path(D2018, "Ori_Dataset.rds"))
 # #---- 輸出物種資訊
 # Data_sp.list <-
-#   Data[, list(common_name_T_ori,
+#   Data[, list(common_name_c_ori,
 #             scientific_name_ori,
 #             accepted_name_code)] %>%
 #   .[, .(Count = .N),
-#     by = list(common_name_T_ori, scientific_name_ori, accepted_name_code)]
+#     by = list(common_name_c_ori, scientific_name_ori, accepted_name_code)]
 # 
 # write.csv(Data_sp.list,
 #        file.path(D2018, "Dataset_sp.list.csv"))
@@ -552,11 +552,11 @@ Data$individual_count %<>% as.numeric
 
 #----Summary
 Data_sp.list <- 
-  Data[, list(common_name_T_ori, 
+  Data[, list(common_name_c_ori, 
               scientific_name_ori,
               accepted_name_code)] %>%
   .[, .(Count = .N),
-    by = list(common_name_T_ori, scientific_name_ori, accepted_name_code)]
+    by = list(common_name_c_ori, scientific_name_ori, accepted_name_code)]
 
 Data_Point.list <- 
   Data[, list(Longitude, Latitude)] %>%
@@ -576,7 +576,7 @@ Data %<>%
   .[ !is.na(individual_count) ] %>% 
   .[, individual_count := as.numeric(individual_count)] %>%
   .[ , .(individual_count = sum(individual_count )), 
-     by = list(common_name_T_ori, scientific_name_ori, accepted_name_code, 
+     by = list(common_name_c_ori, scientific_name_ori, accepted_name_code, 
                Year, Month, 
                Longitude, Latitude,
                eventID, Project) ] %>%
@@ -585,11 +585,11 @@ Data %<>%
 
 #----Summary
 Data_sp.list <- 
-  Data[, list(common_name_T_ori, 
+  Data[, list(common_name_c_ori, 
               scientific_name_ori,
               accepted_name_code)] %>%
   .[, .(Count = .N),
-    by = list(common_name_T_ori, scientific_name_ori, accepted_name_code)]
+    by = list(common_name_c_ori, scientific_name_ori, accepted_name_code)]
 
 Data_Point.list <- 
   Data[, list(Longitude, Latitude)] %>%
@@ -676,11 +676,11 @@ Data_Grid <- All.data.s@data
 
 #----Summary
 Data_sp.list <- 
-  Data_Grid[, list(common_name_T_ori, 
+  Data_Grid[, list(common_name_c_ori, 
               scientific_name_ori,
               accepted_name_code)] %>%
   .[, .(Count = .N),
-    by = list(common_name_T_ori, scientific_name_ori, accepted_name_code)]
+    by = list(common_name_c_ori, scientific_name_ori, accepted_name_code)]
 
 Data_Point.list <- 
   Data_Grid[, list(Longitude, Latitude)] %>%
